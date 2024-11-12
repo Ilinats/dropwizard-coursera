@@ -1,0 +1,10 @@
+rabota\core\Instructor.class
+rabota\iliConfiguration.class
+rabota\db\StudentsDAO.class
+rabota\db\InstructorsDAO.class
+rabota\api\StudentAPI.class
+rabota\core\Student.class
+rabota\api\InstructorAPI.class
+rabota\db\InstructorMapper.class
+rabota\resources\HelloWorld.class
+rabota\iliApplication.class
