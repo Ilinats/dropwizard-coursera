@@ -33,6 +33,7 @@ public class StudentAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addStudent(Student student) {
         try {
+            checkStudentInsert(student);
             studentsDAO.insertStudent(student.getPin(), student.getFirstName(), student.getLastName(), new java.util.Date());
             return Response.status(Response.Status.CREATED)
                     .entity("Student added successfully")
@@ -62,6 +63,28 @@ public class StudentAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("There was an error processing your request.")
                     .build();
+        }
+    }
+
+    void checkStudentInsert(Student student) {
+        if(student.getPin() == null || student.getFirstName() == null || student.getLastName() == null) {
+            throw new WebApplicationException("Student must have a pin, first name, and last name", Response.Status.BAD_REQUEST);
+        }
+
+        if(student.getPin().length() != 10) {
+            throw new WebApplicationException("Student pin must be 10 characters long", Response.Status.BAD_REQUEST);
+        }
+
+        if(student.getFirstName().length() > 50 || student.getLastName().length() > 50) {
+            throw new WebApplicationException("Student first and last names must be less than 50 characters long", Response.Status.BAD_REQUEST);
+        }
+
+        if(student.getFirstName().isEmpty() || student.getLastName().isEmpty()) {
+            throw new WebApplicationException("Student first and last names must not be empty", Response.Status.BAD_REQUEST);
+        }
+
+        if(studentsDAO.listStudents().stream().anyMatch(s -> s.getPin().equals(student.getPin()))) {
+            throw new WebApplicationException("Student with this pin already exists", Response.Status.BAD_REQUEST);
         }
     }
 }

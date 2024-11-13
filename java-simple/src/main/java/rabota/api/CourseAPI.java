@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rabota.core.Course;
 import rabota.db.CoursesDAO;
+import rabota.db.InstructorsDAO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class CourseAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(CourseAPI.class.getName());
     CoursesDAO courseDAO;
+    InstructorsDAO instructorDAO;
 
     public CourseAPI(Jdbi jdbi) {
         courseDAO = jdbi.onDemand(CoursesDAO.class);
@@ -67,6 +69,24 @@ public class CourseAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("There was an error processing your request.")
                     .build();
+        }
+    }
+
+    void checkCourseInsert(Course course) {
+        if (course.getName() == null || course.getName().isEmpty()) {
+            throw new IllegalArgumentException("Course name cannot be empty");
+        }
+
+       if(instructorDAO.getInstructorById(course.getInstructorId()) == null) {
+           throw new IllegalArgumentException("Instructor does not exist");
+       }
+
+        if (course.getCredit() <= 0) {
+            throw new IllegalArgumentException("Credit must be greater than 0");
+        }
+
+        if (course.getTotalTime() <= 0) {
+            throw new IllegalArgumentException("Total time must be greater than 0");
         }
     }
 }

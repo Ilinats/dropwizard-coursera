@@ -34,4 +34,22 @@ public class ReportAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error generating report").build();
         }
     }
+
+    void checkReportGeneration(List<String> pins, int minCredit, String startDate, String endDate) {
+        if (pins == null || pins.isEmpty()) {
+            throw new IllegalArgumentException("At least one student pin must be provided");
+        }
+
+        if (minCredit < 0) {
+            throw new IllegalArgumentException("Minimum credit must be a non-negative number");
+        }
+
+        if (startDate == null || endDate == null) {
+            throw new IllegalArgumentException("Start and end dates must be provided");
+        }
+
+        if(startDate.compareTo(endDate) > 0) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
+    }
 }

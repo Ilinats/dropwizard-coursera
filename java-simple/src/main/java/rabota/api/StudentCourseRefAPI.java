@@ -7,7 +7,9 @@ import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rabota.core.StudentCourseRef;
+import rabota.db.CoursesDAO;
 import rabota.db.StudentsCoursesRefDAO;
+import rabota.db.StudentsDAO;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
 public class StudentCourseRefAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(StudentCourseRefAPI.class);
     StudentsCoursesRefDAO studentCourseRefDAO;
+    CoursesDAO courseDAO;
+    StudentsDAO studentDAO;
 
     public StudentCourseRefAPI(Jdbi jdbi) {
         studentCourseRefDAO = jdbi.onDemand(StudentsCoursesRefDAO.class);
@@ -28,6 +32,7 @@ public class StudentCourseRefAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addStudentCourseRef(StudentCourseRef studentCourseRef) {
         try {
+            checkStudentCourseRefInsert(studentCourseRef);
             studentCourseRefDAO.insertStudentCourseRef(studentCourseRef.getCourseId(), studentCourseRef.getStudentPin(), null);
             return Response.status(Response.Status.CREATED)
                     .entity("Student enrolled in course successfully")
@@ -67,6 +72,7 @@ public class StudentCourseRefAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateCompletionDate(StudentCourseRef studentCourseRef) {
         try {
+            checkStudentCourseRefInsert(studentCourseRef);
             studentCourseRefDAO.updateCompletionDate(studentCourseRef.getCourseId(), studentCourseRef.getStudentPin(), new Date());
             return Response.ok("Completion date updated successfully").build();
         } catch (Exception e) {
@@ -74,6 +80,20 @@ public class StudentCourseRefAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("There was an error processing your request.")
                     .build();
+        }
+    }
+
+    void checkStudentCourseRefInsert(StudentCourseRef studentCourseRef) {
+        if (courseDAO.getCourseById(studentCourseRef.getCourseId()) == null) {
+            throw new BadRequestException("Course does not exist");
+        }
+
+        if (studentCourseRef.getStudentPin() == null || studentCourseRef.getStudentPin().isEmpty()) {
+            throw new BadRequestException("Student PIN must not be empty");
+        }
+
+        if(studentDAO.getStudentByPin(studentCourseRef.getStudentPin()) == null) {
+            throw new BadRequestException("Student does not exist");
         }
     }
 

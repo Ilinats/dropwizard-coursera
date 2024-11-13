@@ -25,4 +25,7 @@ public interface CoursesDAO {
 
     @SqlQuery("SELECT * FROM courses")
     List<Course> listCourses();
+
+    @SqlQuery("SELECT * FROM courses WHERE id = :id")
+    Course getCourseById(@Bind("id") int id);
 }

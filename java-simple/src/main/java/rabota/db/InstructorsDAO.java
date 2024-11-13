@@ -25,4 +25,7 @@ public interface InstructorsDAO {
 
     @SqlQuery("select first_name from instructors where id = 1")
     String testQuery();
+
+    @SqlQuery("select * from instructors where id = :id")
+    Instructor getInstructorById(@Bind("id") int id);
 }

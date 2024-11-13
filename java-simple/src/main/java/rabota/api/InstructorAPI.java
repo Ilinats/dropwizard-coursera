@@ -33,6 +33,7 @@ public class InstructorAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addInstructor(Instructor instructor) {
         try {
+            checkInstructorInsert(instructor);
             instructorsDAO.insertInstructor(instructor.getFirstName(), instructor.getLastName(), new java.util.Date());
             return Response.status(Response.Status.CREATED)
                     .entity("Instructor added successfully")
@@ -61,6 +62,28 @@ public class InstructorAPI {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("There was an error processing your request.")
                     .build();
+        }
+    }
+
+    void checkInstructorInsert(Instructor instructor) {
+        if(instructor.getFirstName() == null || instructor.getFirstName().isEmpty()) {
+            throw new WebApplicationException("Instructor first name is required", Response.Status.BAD_REQUEST);
+        }
+
+        if(instructor.getLastName() == null || instructor.getLastName().isEmpty()) {
+            throw new WebApplicationException("Instructor last name is required", Response.Status.BAD_REQUEST);
+        }
+
+        if(instructor.getTimeCreated() == null) {
+            throw new WebApplicationException("Instructor time created is required", Response.Status.BAD_REQUEST);
+        }
+
+        if(instructor.getFirstName().length() > 100) {
+            throw new WebApplicationException("Instructor first name is too long", Response.Status.BAD_REQUEST);
+        }
+
+        if(instructor.getLastName().length() > 100) {
+            throw new WebApplicationException("Instructor last name is too long", Response.Status.BAD_REQUEST);
         }
     }
 

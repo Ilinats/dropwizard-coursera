@@ -22,4 +22,7 @@ public interface StudentsDAO {
 
     @SqlQuery("SELECT * FROM students")
     List<Student> listStudents();
+
+    @SqlQuery("select * from students where pin = :pin")
+    Student getStudentByPin(@Bind("pin") String pin);
 }
