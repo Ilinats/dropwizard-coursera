@@ -21,11 +21,11 @@ public class StudentAPI {
     public StudentAPI(Jdbi jdbi) {
         studentsDAO = jdbi.onDemand(StudentsDAO.class);
         studentsDAO.createStudentsTable();
-//        if (studentsDAO.listStudents().isEmpty()) {
-//            studentsDAO.insertStudent("123456789", "Test", "Testov", new java.util.Date());
-//            studentsDAO.insertStudent("987654321", "Test2", "Testov2", new java.util.Date());
-//            studentsDAO.insertStudent("123123123", "Test3", "Testov3", new java.util.Date());
-//        }
+        if (studentsDAO.listStudents().isEmpty()) {
+            studentsDAO.insertStudent("123456789", "Test", "Testov", new java.util.Date());
+            studentsDAO.insertStudent("987654321", "Test2", "Testov2", new java.util.Date());
+            studentsDAO.insertStudent("123123123", "Test3", "Testov3", new java.util.Date());
+        }
     }
 
     @POST
@@ -37,6 +37,11 @@ public class StudentAPI {
             studentsDAO.insertStudent(student.getPin(), student.getFirstName(), student.getLastName(), new java.util.Date());
             return Response.status(Response.Status.CREATED)
                     .entity("Student added successfully")
+                    .build();
+        } catch (WebApplicationException e) {
+            LOGGER.error("Error adding student", e);
+            return Response.status(e.getResponse().getStatus())
+                    .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
             LOGGER.error("Error adding student", e);
@@ -71,10 +76,6 @@ public class StudentAPI {
             throw new WebApplicationException("Student must have a pin, first name, and last name", Response.Status.BAD_REQUEST);
         }
 
-        if(student.getPin().length() != 10) {
-            throw new WebApplicationException("Student pin must be 10 characters long", Response.Status.BAD_REQUEST);
-        }
-
         if(student.getFirstName().length() > 50 || student.getLastName().length() > 50) {
             throw new WebApplicationException("Student first and last names must be less than 50 characters long", Response.Status.BAD_REQUEST);
         }
@@ -83,8 +84,12 @@ public class StudentAPI {
             throw new WebApplicationException("Student first and last names must not be empty", Response.Status.BAD_REQUEST);
         }
 
-        if(studentsDAO.listStudents().stream().anyMatch(s -> s.getPin().equals(student.getPin()))) {
+        if(studentsDAO.getStudentByPin(student.getPin()) != null) {
             throw new WebApplicationException("Student with this pin already exists", Response.Status.BAD_REQUEST);
+        }
+
+        if(student.getPin().isEmpty()) {
+            throw new WebApplicationException("Student pin must not be empty", Response.Status.BAD_REQUEST);
         }
     }
 }

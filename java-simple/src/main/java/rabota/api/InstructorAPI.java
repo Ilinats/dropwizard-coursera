@@ -38,6 +38,11 @@ public class InstructorAPI {
             return Response.status(Response.Status.CREATED)
                     .entity("Instructor added successfully")
                     .build();
+        } catch (WebApplicationException e) {
+            LOGGER.error("Error adding instructor", e);
+            return Response.status(e.getResponse().getStatus())
+                    .entity(e.getMessage())
+                    .build();
         } catch (Exception e) {
             LOGGER.error("Error adding instructor", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

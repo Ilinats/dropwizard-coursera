@@ -25,6 +25,8 @@ public class StudentCourseRefAPI {
     public StudentCourseRefAPI(Jdbi jdbi) {
         studentCourseRefDAO = jdbi.onDemand(StudentsCoursesRefDAO.class);
         studentCourseRefDAO.createStudentsCoursesRefTable();
+        courseDAO = jdbi.onDemand(CoursesDAO.class);
+        studentDAO = jdbi.onDemand(StudentsDAO.class);
     }
 
     @POST
@@ -36,6 +38,11 @@ public class StudentCourseRefAPI {
             studentCourseRefDAO.insertStudentCourseRef(studentCourseRef.getCourseId(), studentCourseRef.getStudentPin(), null);
             return Response.status(Response.Status.CREATED)
                     .entity("Student enrolled in course successfully")
+                    .build();
+        } catch (BadRequestException e) {
+            LOGGER.error("Error adding student-course ref", e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
             LOGGER.error("Error adding student-course ref", e);
@@ -75,6 +82,11 @@ public class StudentCourseRefAPI {
             checkStudentCourseRefInsert(studentCourseRef);
             studentCourseRefDAO.updateCompletionDate(studentCourseRef.getCourseId(), studentCourseRef.getStudentPin(), new Date());
             return Response.ok("Completion date updated successfully").build();
+        } catch (BadRequestException e) {
+            LOGGER.error("Error updating completion date", e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
         } catch (Exception e) {
             LOGGER.error("Error updating completion date", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

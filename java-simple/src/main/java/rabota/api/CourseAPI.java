@@ -3,6 +3,7 @@ package rabota.api;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class CourseAPI {
 
     public CourseAPI(Jdbi jdbi) {
         courseDAO = jdbi.onDemand(CoursesDAO.class);
+        instructorDAO = jdbi.onDemand(InstructorsDAO.class);
         courseDAO.createCoursesTable();
         if (courseDAO.listCourses().isEmpty()) {
             courseDAO.insertCourse("Java", 1, new java.util.Date(), 3, 30);
@@ -35,9 +37,15 @@ public class CourseAPI {
     @Path("/add")
     public Response addCourse(Course course) {
         try {
+            checkCourseInsert(course);
             courseDAO.insertCourse(course.getName(), course.getInstructorId(), new java.util.Date(), course.getCredit(), course.getTotalTime());
             return Response.status(Response.Status.CREATED)
                     .entity("Course added successfully")
+                    .build();
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Error adding course", e);
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
             LOGGER.error("Error adding course", e);
@@ -73,7 +81,7 @@ public class CourseAPI {
     }
 
     void checkCourseInsert(Course course) {
-        if (course.getName() == null || course.getName().isEmpty()) {
+        if (course.getName() == null || course.getName().isEmpty() || course.getName().isBlank()) {
             throw new IllegalArgumentException("Course name cannot be empty");
         }
 
