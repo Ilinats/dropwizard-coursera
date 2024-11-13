@@ -6,6 +6,7 @@ import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
 import org.jdbi.v3.core.Jdbi;
 import rabota.api.*;
+import rabota.util.JwtAuthFilter;
 
 public class iliApplication extends Application<iliConfiguration> {
 
@@ -26,8 +27,6 @@ public class iliApplication extends Application<iliConfiguration> {
     @Override
     public void run(final iliConfiguration configuration,
                     final Environment environment) {
-//        HelloWorld helloWorld = new HelloWorld();
-//        environment.jersey().register(helloWorld);
 
         final JdbiFactory factory = new JdbiFactory();
         final Jdbi jdbi = factory.build(environment, configuration.getDataSourceFactory(), "postgresql");
@@ -46,5 +45,10 @@ public class iliApplication extends Application<iliConfiguration> {
 
         final ReportAPI reportAPI = new ReportAPI(jdbi);
         environment.jersey().register(reportAPI);
+
+        final AuthAPI authAPI = new AuthAPI(jdbi);
+        environment.jersey().register(authAPI);
+
+        environment.jersey().register(JwtAuthFilter.class);
     }
 }

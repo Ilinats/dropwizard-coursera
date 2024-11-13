@@ -15,6 +15,7 @@ public class AuthAPI {
 
     public AuthAPI(Jdbi jdbi) {
         this.usersDAO = jdbi.onDemand(UsersDAO.class);
+        usersDAO.createUsersTable();
     }
 
     @POST
@@ -27,6 +28,20 @@ public class AuthAPI {
             return Response.ok().entity("{\"token\":\"" + token + "\"}").build();
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Invalid credentials").build();
+        }
+    }
+
+    @POST
+    @Path("/register")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response register(User user) {
+        User storedUser = usersDAO.getUserByUsername(user.getUsername());
+        if (storedUser != null) {
+            return Response.status(Response.Status.CONFLICT).entity("User already exists").build();
+        } else {
+            usersDAO.insertUser(user.getUsername(), user.getPassword(), user.getEmail());
+            String token = JwtUtil.generateToken(user.getUsername());
+            return Response.status(Response.Status.CREATED).entity("{\"token\":\"" + token + "\"}").build();
         }
     }
 }

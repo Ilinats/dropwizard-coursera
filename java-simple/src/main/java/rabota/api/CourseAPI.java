@@ -22,11 +22,11 @@ public class CourseAPI {
     public CourseAPI(Jdbi jdbi) {
         courseDAO = jdbi.onDemand(CoursesDAO.class);
         courseDAO.createCoursesTable();
-//        if (courseDAO.listCourses().isEmpty()) {
-//            courseDAO.insertCourse("Java", 1, new java.util.Date(), 3, 30);
-//            courseDAO.insertCourse("Python", 2, new java.util.Date(), 3, 30);
-//            courseDAO.insertCourse("C++", 3, new java.util.Date(), 3, 30);
-//        }
+        if (courseDAO.listCourses().isEmpty()) {
+            courseDAO.insertCourse("Java", 1, new java.util.Date(), 3, 30);
+            courseDAO.insertCourse("Python", 2, new java.util.Date(), 3, 30);
+            courseDAO.insertCourse("C++", 3, new java.util.Date(), 3, 30);
+        }
     }
 
     @POST
