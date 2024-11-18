@@ -79,10 +79,6 @@ public class InstructorAPI {
             throw new WebApplicationException("Instructor last name is required", Response.Status.BAD_REQUEST);
         }
 
-        if(instructor.getTimeCreated() == null) {
-            throw new WebApplicationException("Instructor time created is required", Response.Status.BAD_REQUEST);
-        }
-
         if(instructor.getFirstName().length() > 100) {
             throw new WebApplicationException("Instructor first name is too long", Response.Status.BAD_REQUEST);
         }

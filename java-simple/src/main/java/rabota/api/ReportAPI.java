@@ -39,10 +39,6 @@ public class ReportAPI {
     }
 
     void checkReportGeneration(List<String> pins, int minCredit, String startDate, String endDate) {
-        if (pins == null || pins.isEmpty()) {
-            throw new IllegalArgumentException("At least one student pin must be provided");
-        }
-
         if (minCredit < 0) {
             throw new IllegalArgumentException("Minimum credit must be a non-negative number");
         }
